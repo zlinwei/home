@@ -48,6 +48,6 @@ homebridge-cmd
 ```
 
 ### 红外模块 ###
-![红外模块](images/ir.jpg)
+![红外模块](images/ir.jpeg)
 
 
