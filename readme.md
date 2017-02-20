@@ -18,7 +18,8 @@
 
 
 ##### homebridge #####
-##### homebridge-cmd #####	
+homebridge-cmd	
+
 ~/.homebridge/config.json
 ```Json
 {
@@ -46,9 +47,7 @@
 }
 ```
 
+### 红外模块 ###
+![红外模块](images/ir.jpg)
 
 
-
-rf433射频
-
-红外
