@@ -2,7 +2,7 @@
 #include <mosquitto.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <unistd.h>
 
 void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
@@ -21,15 +21,14 @@ void my_connect_callback(struct mosquitto *mosq, void *userdata, int result)
 {
 	int i;
 	if(!result){
-		//连接成功
 		/* Subscribe to broker information topics on successful connect. */
-		mosquitto_subscribe(mosq, NULL, "/mytopic", 2);
+		mosquitto_subscribe(mosq, NULL, "/home", 2);
 	}else{
-		//连接失败
 		fprintf(stderr, "Connect failed\n");
 	}
 }
 
+//void (*on_subscribe)(struct mosquitto *, void *, int, int, const int *));
 void my_subscribe_callback(struct mosquitto *mosq, void *userdata, int mid, int qos_count, const int *granted_qos)
 {
 	int i;
@@ -43,39 +42,45 @@ void my_subscribe_callback(struct mosquitto *mosq, void *userdata, int mid, int 
 
 void my_log_callback(struct mosquitto *mosq, void *userdata, int level, const char *str)
 {
-	//日志
 	/* Pring all log messages regardless of level. */
-//	printf("%s\n", str);
+	printf("%s\n", str);
+}
+
+void my_disconnect_callback(struct mosquitto *mosq, void *userdata, int result){
+	printf("disconnect:%d\n",result);
+	
+	while(mosquitto_connect(mosq, "hltdoor.com", 1883, 60)){
+                     fprintf(stderr, "Unable to connect.\n");
+		     sleep(5);		
+        }
+
 }
 
 int main(int argc, char *argv[])
 {
+	if(argc<2){
+		printf("need input argv 1 for cliend id\n");
+		return 0;
+	}
 	int i;
-	//连接配置
 	char *host = "hltdoor.com";
 	int port = 1883;
 	int keepalive = 60;
 	bool clean_session = true;
 	struct mosquitto *mosq = NULL;
-	//初始化mosquitto库
+	
 	mosquitto_lib_init();
-	//创建一个会话
-	mosq = mosquitto_new("main001", clean_session, NULL);
+	mosq = mosquitto_new(argv[1], clean_session, NULL);
 
 	if(!mosq){
-		//创建失败
 		fprintf(stderr, "Error: Out of memory.\n");
 		return 1;
 	}
-	//设置日志回调
 	mosquitto_log_callback_set(mosq, my_log_callback);
-	//设置连接回调
 	mosquitto_connect_callback_set(mosq, my_connect_callback);
-	//设置收到消息回调
 	mosquitto_message_callback_set(mosq, my_message_callback);
-	//设置订阅回调
 	mosquitto_subscribe_callback_set(mosq, my_subscribe_callback);
-
+	mosquitto_disconnect_callback_set(mosq,my_disconnect_callback);
 	mosquitto_username_pw_set(mosq,"zlinwei","z19930809");
 
 	if(mosquitto_connect(mosq, host, port, keepalive)){
