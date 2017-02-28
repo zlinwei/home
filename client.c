@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "rf433.h"
+
 
 void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
@@ -10,6 +12,7 @@ void my_message_callback(struct mosquitto *mosq, void *userdata, const struct mo
 	if(message->payloadlen){
 		//如果消息长度不为零 就显示收到的消息和topic
 		printf("%s %s\n", message->topic, message->payload);
+		sendCommand("/dev/ttyUSB0",01,01,01);
 	}else{
 		printf("Topic:%s\n",message->topic);
 		//消息长度为0 显示topic
