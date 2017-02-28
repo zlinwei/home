@@ -1,5 +1,10 @@
-rf433:rf433.c
-	gcc -o rf433 rf433.c -lwiringPi
-client:client.c
-	gcc -o client client.c -lwiringPi
+all: client rf433
 
+rf433: rf433.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $+ -o $@ -lwiringPi
+
+client: client.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $+ -o $@ -lwiringPi -lmosquitto
+
+clean:
+	$(RM) *.o rf433 client
